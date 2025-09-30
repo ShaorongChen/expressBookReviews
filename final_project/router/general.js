@@ -142,14 +142,27 @@ public_users.get('/title/:title', function (req, res) {
 public_users.get('/review/:isbn', function (req, res) {
     const isbn = req.params.isbn;
 
-    // Check if the book exists
-    if (books[isbn]) {
-        // Return the reviews for that book
-        res.send(books[isbn].reviews);
-    } else {
-        // Book not found
-        res.status(404).send({ message: "Book not found" });
-    }
+    // Using Promise to handle asynchronous operation
+    const getBookReview = new Promise((resolve, reject) => {
+        try {
+            // Check if the book exists
+            if (books[isbn]) {
+                resolve(books[isbn].reviews);
+            } else {
+                reject(new Error('Book not found'));
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+    getBookReview
+        .then(data => {
+            res.send(JSON.stringify(data, null, 4));
+        })
+        .catch(error => {
+            res.status(404).send({ message: error.message });
+        });
 });
 
 
