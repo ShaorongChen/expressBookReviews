@@ -26,58 +26,115 @@ public_users.post("/register", (req, res) => {
 
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
-    //Write your code here
-    res.send(JSON.stringify(books, null, 4));
+    // Write your code here
+    const getAllBooks = new Promise((resolve, reject) => {
+        try {
+            resolve(books);
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+    getAllBooks
+        .then(data => {
+            res.send(JSON.stringify(data, null, 4));
+        })
+        .catch(error => {
+            res.status(500).send('Error retrieving books: ' + error);
+        });
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', function (req, res) {
-    const isbn = req.params.isbn
-    res.send(books[isbn])
+    // Write your code here
+    const getBookByIsbn = new Promise((resolve, reject) => {
+        try {
+            const isbn = req.params.isbn;
+            const book = books[isbn];
+            if (book) {
+                resolve(book);
+            } else {
+                reject(new Error('Book not found'));
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+
+    getBookByIsbn
+        .then(data => {
+            res.send(JSON.stringify(data, null, 4));
+        })
+        .catch(error => {
+            res.status(404).send('Error: ' + error.message);
+        });
 });
 
 // Get book details based on author
 public_users.get('/author/:author', function (req, res) {
     const author = req.params.author;
 
-    // Search through all books to find matches
-    const matchingBooks = {};
+    const getBooksByAuthor = new Promise((resolve, reject) => {
+        try {
+            const matchingBooks = {};
 
-    for (let id in books) {
-        if (books[id].author === author) {
-            matchingBooks[id] = books[id];
+            for (let id in books) {
+                if (books[id].author === author) {
+                    matchingBooks[id] = books[id];
+                }
+            }
+
+            if (Object.keys(matchingBooks).length > 0) {
+                resolve(matchingBooks);
+            } else {
+                reject(new Error('No books found for this author'));
+            }
+        } catch (error) {
+            reject(error);
         }
-    }
+    });
 
-    // Return the matching books or a message if none found
-    if (Object.keys(matchingBooks).length > 0) {
-        res.send(matchingBooks);
-    } else {
-        res.status(404).send({ message: "No books found for this author" });
-    }
+    getBooksByAuthor
+        .then(data => {
+            res.send(JSON.stringify(data, null, 4));
+        })
+        .catch(error => {
+            res.status(404).send({ message: error.message });
+        });
 });
 
 
 // Get all books based on title
-// Get all books based on title
 public_users.get('/title/:title', function (req, res) {
     const title = req.params.title;
 
-    // Search through all books to find matches
-    const matchingBooks = {};
+    const getBooksByTitle = new Promise((resolve, reject) => {
+        try {
+            const matchingBooks = {};
 
-    for (let id in books) {
-        if (books[id].title === title) {
-            matchingBooks[id] = books[id];
+            for (let id in books) {
+                if (books[id].title === title) {
+                    matchingBooks[id] = books[id];
+                }
+            }
+
+            if (Object.keys(matchingBooks).length > 0) {
+                resolve(matchingBooks);
+            } else {
+                reject(new Error('No books found with this title'));
+            }
+        } catch (error) {
+            reject(error);
         }
-    }
+    });
 
-    // Return the matching books or a message if none found
-    if (Object.keys(matchingBooks).length > 0) {
-        res.send(matchingBooks);
-    } else {
-        res.status(404).send({ message: "No books found with this title" });
-    }
+    getBooksByTitle
+        .then(data => {
+            res.send(JSON.stringify(data, null, 4));
+        })
+        .catch(error => {
+            res.status(404).send({ message: error.message });
+        });
 });
 
 
